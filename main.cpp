@@ -4,18 +4,21 @@
 #include <vector>
 #include <sstream>
 #include <cmath>
+#include<ctime>
+#include <iomanip> 
 using namespace std;
+
 #define UNASSIGNED 0
 
 string GetUserInput();
 int *rowvalues(int size, string line);
 void printMatrix(int **arr, int dim);
-bool SolveSudoku(int **grid,int dim);
-bool FindUnassignedLocation(int **grid,int dim, int &row, int &col);
-bool isSafe(int** grid,int dim, int row, int col, int num);
-bool UsedInRow(int** grid,int dim, int row, int num);
-bool UsedInCol(int** grid,int dim, int col, int num);
-bool UsedInBox(int** grid,int dim, int boxStartRow, int boxStartCol, int num);
+bool SolveSudoku(int **grid, int dim);
+bool FindUnassignedLocation(int **grid, int dim, int &row, int &col);
+bool isSafe(int **grid, int dim, int row, int col, int num);
+bool UsedInRow(int **grid, int dim, int row, int num);
+bool UsedInCol(int **grid, int dim, int col, int num);
+bool UsedInBox(int **grid, int dim, int boxStartRow, int boxStartCol, int num);
 int main(int argc, char *argv[])
 {
     ifstream inputFile;
@@ -37,7 +40,8 @@ int main(int argc, char *argv[])
     }
 
     //Getting the dimensions determining whether the matrix is 9x9 or 16x16
-
+    time_t start, end;
+    time(&start);
     string line;
     getline(inputFile, line);
     string strNumber;
@@ -63,11 +67,15 @@ int main(int argc, char *argv[])
     inputFile.close();
     // printing the array in console
     //printMatrix(matrix, dim);
-    if (SolveSudoku(matrix,dim) == true)
+    if (SolveSudoku(matrix, dim) == true)
         printMatrix(matrix, dim);
     else
         cout << "No solution exists" << endl;
-
+time(&end);
+ double time_taken = double(end - start);
+    cout << "Time taken by program is : " << fixed
+         << time_taken << setprecision(5);
+    cout << " sec " << endl;
     return 0;
 }
 string GetUserInput()
@@ -111,17 +119,17 @@ void printMatrix(int **arr, int dim)
     }
 }
 
-bool SolveSudoku(int **grid,int dim)
+bool SolveSudoku(int **grid, int dim)
 {
     int row, col;
-    if (!FindUnassignedLocation(grid,dim, row, col))
-       return true;
+    if (!FindUnassignedLocation(grid, dim, row, col))
+        return true;
     for (int num = 1; num <= dim; num++)
     {
-        if (isSafe(grid,dim, row, col, num))
+        if (isSafe(grid, dim, row, col, num))
         {
             grid[row][col] = num;
-            if (SolveSudoku(grid,dim))
+            if (SolveSudoku(grid, dim))
                 return true;
             grid[row][col] = UNASSIGNED;
         }
@@ -129,7 +137,7 @@ bool SolveSudoku(int **grid,int dim)
     return false;
 }
 
-bool FindUnassignedLocation(int **grid,int dim, int &row, int &col)
+bool FindUnassignedLocation(int **grid, int dim, int &row, int &col)
 {
     for (row = 0; row < dim; row++)
         for (col = 0; col < dim; col++)
@@ -137,29 +145,30 @@ bool FindUnassignedLocation(int **grid,int dim, int &row, int &col)
                 return true;
     return false;
 }
-bool isSafe(int** grid,int dim, int row, int col, int num)
+bool isSafe(int **grid, int dim, int row, int col, int num)
 {
-    return !UsedInRow(grid,dim, row, num) && !UsedInCol(grid,dim, col, num) &&
-           !UsedInBox(grid,dim, row - row % int(sqrt(dim)) , col - col % int(sqrt(dim)), num);
+    return !UsedInRow(grid, dim, row, num) && !UsedInCol(grid, dim, col, num) &&
+           !UsedInBox(grid, dim, row - row % int(sqrt(dim)), col - col % int(sqrt(dim)), num);
 }
-bool UsedInRow(int** grid,int dim, int row, int num)
+bool UsedInRow(int **grid, int dim, int row, int num)
 {
     for (int col = 0; col < dim; col++)
         if (grid[row][col] == num)
             return true;
     return false;
 }
-bool UsedInCol(int** grid,int dim, int col, int num){
-     for (int row = 0; row < dim; row++)
+bool UsedInCol(int **grid, int dim, int col, int num)
+{
+    for (int row = 0; row < dim; row++)
         if (grid[row][col] == num)
             return true;
     return false;
 }
-bool UsedInBox(int** grid,int dim, int boxStartRow, int boxStartCol, int num){
+bool UsedInBox(int **grid, int dim, int boxStartRow, int boxStartCol, int num)
+{
     for (int row = 0; row < int(sqrt(dim)); row++)
         for (int col = 0; col < int(sqrt(dim)); col++)
-            if (grid[row+boxStartRow][col+boxStartCol] == num)
+            if (grid[row + boxStartRow][col + boxStartCol] == num)
                 return true;
     return false;
 }
- 
